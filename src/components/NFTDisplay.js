@@ -12,6 +12,16 @@ const NFTDisplay = () => {
     setSelectedNFT(null); // 清除選擇
   };
 
+  // ✅ 新增：從剪貼簿貼上錢包地址
+  const handleClipboardPaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setWalletAddress(text);
+    } catch (err) {
+      alert("無法讀取剪貼簿，請確認瀏覽器允許權限");
+    }
+  };
+
   const getImageUrl = (nft) => {
     return nft?.media?.[0]?.gateway || nft?.raw?.metadata?.image || null;
   };
@@ -28,6 +38,11 @@ const NFTDisplay = () => {
           onChange={(e) => setWalletAddress(e.target.value)}
           style={{ width: '400px', padding: '8px', marginRight: '10px' }}
         />
+        {/* ✅ 新增貼上按鈕 */}
+        <button onClick={handleClipboardPaste} style={{ marginRight: '10px' }}>
+          📋 貼上
+        </button>
+
         <button onClick={handleFetchNFTs}>Fetch NFTs</button>
       </div>
 
