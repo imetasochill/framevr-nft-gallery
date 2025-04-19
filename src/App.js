@@ -5,7 +5,7 @@ import NFTDisplay from './components/NFTDisplay';
 function App() {
   return (
     <div className="App">
-      <h1>NFT Viewer</h1>
+      {/* 刪除多餘的標題，僅保留組件 */}
       <NFTDisplay />
     </div>
   );

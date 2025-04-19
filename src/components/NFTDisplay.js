@@ -30,6 +30,18 @@ const NFTDisplay = () => {
     setSelectedNFT(null);
   };
 
+  const handlePrev = () => {
+    if (!selectedNFT) return;
+    const idx = nfts.findIndex(nft => nft === selectedNFT);
+    if (idx > 0) setSelectedNFT(nfts[idx - 1]);
+  };
+
+  const handleNext = () => {
+    if (!selectedNFT) return;
+    const idx = nfts.findIndex(nft => nft === selectedNFT);
+    if (idx < nfts.length - 1) setSelectedNFT(nfts[idx + 1]);
+  };
+
   const normalizeUrl = url => {
     if (!url) return null;
     if (url.startsWith('ipfs://')) {
@@ -58,8 +70,8 @@ const NFTDisplay = () => {
       {/* 標題 */}
       <h1
         style={{
-          textAlign: 'left',       // 文字靠左
-          margin: '0 0 20px 0',     // 上右下左
+          textAlign: 'left',
+          margin: '0 0 20px 0',
           fontSize: '2.5rem',
           fontWeight: '700',
           background: 'linear-gradient(90deg, #7928ca, #ff0080)',
@@ -109,16 +121,60 @@ const NFTDisplay = () => {
         </button>
       </div>
 
-      {/* 已選 NFT 放大顯示 */}
+      {/* 已選 NFT 放大顯示 + 左右切換按鈕 */}
       {selectedNFT && (
         <div style={{ marginBottom: '30px', textAlign: 'center' }}>
           <h2>🎯 Selected NFT</h2>
-          <img
-            src={getImageUrl(selectedNFT) || FALLBACK_IMAGE}
-            alt={selectedNFT.title}
-            onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
-            style={{ width: '80%', maxWidth: '600px', borderRadius: '12px' }}
-          />
+
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            {/* 左箭頭：上一张 */}
+            <button
+              onClick={handlePrev}
+              disabled={nfts.findIndex(nft => nft === selectedNFT) <= 0}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '-20px',
+                transform: 'translateY(-50%)',
+                background: '#fff',
+                border: '1px solid #ddd',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                cursor: 'pointer',
+                fontSize: '18px',
+                lineHeight: '32px',
+              }}
+            >‹</button>
+
+            <img
+              src={getImageUrl(selectedNFT) || FALLBACK_IMAGE}
+              alt={selectedNFT.title}
+              onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
+              style={{ width: '80%', maxWidth: '600px', borderRadius: '12px' }}
+            />
+
+            {/* 右箭頭：下一张 */}
+            <button
+              onClick={handleNext}
+              disabled={nfts.findIndex(nft => nft === selectedNFT) >= nfts.length - 1}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                right: '-20px',
+                transform: 'translateY(-50%)',
+                background: '#fff',
+                border: '1px solid #ddd',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                cursor: 'pointer',
+                fontSize: '18px',
+                lineHeight: '32px',
+              }}
+            >›</button>
+          </div>
+
           <p style={{ fontWeight: 'bold', fontSize: '20px', marginTop: '10px' }}>
             {selectedNFT.title || selectedNFT.name || 'Unnamed NFT'}
           </p>
@@ -133,7 +189,15 @@ const NFTDisplay = () => {
             <div
               key={idx}
               onClick={() => setSelectedNFT(nft)}
-              style={{ cursor: 'pointer', border: selectedNFT === nft ? '2px solid #007bff' : '1px solid #ddd', borderRadius: '8px', padding: '8px', width: '180px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+              style={{
+                cursor: 'pointer',
+                border: selectedNFT === nft ? '2px solid #007bff' : '1px solid #ddd',
+                borderRadius: '8px',
+                padding: '8px',
+                width: '180px',
+                textAlign: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
             >
               <img
                 src={url || FALLBACK_IMAGE}
@@ -152,7 +216,23 @@ const NFTDisplay = () => {
       {/* 浮動鍵盤切換按鈕 */}
       <button
         onClick={toggleKeyboard}
-        style={{ position: 'fixed', bottom: '20px', right: '20px', width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, #6e84f7, #9b9bff)', border: 'none', boxShadow: '0 4px 8px rgba(0,0,0,0.2)', fontSize: '24px', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6e84f7, #9b9bff)',
+          border: 'none',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+          fontSize: '24px',
+          color: '#fff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         title={showKeyboard ? '收起鍵盤' : '開啟鍵盤'}
       >
         ⌨️
@@ -160,8 +240,22 @@ const NFTDisplay = () => {
 
       {/* 虛擬鍵盤 */}
       {showKeyboard && (
-        <div style={{ position: 'fixed', bottom: '80px', right: '20px', maxWidth: '90vw', width: '320px', boxSizing: 'border-box' }}>
-          <Keyboard keyboardRef={r => (keyboardRef.current = r)} layoutName="default" onChange={onKeyboardChange} />
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '80px',
+            left: '20px',
+            right: '20px',
+            boxSizing: 'border-box',
+            overflowX: 'auto',
+            maxWidth: '90vw',
+          }}
+        >
+          <Keyboard
+            keyboardRef={r => (keyboardRef.current = r)}
+            layoutName="default"
+            onChange={onKeyboardChange}
+          />
         </div>
       )}
     </div>
